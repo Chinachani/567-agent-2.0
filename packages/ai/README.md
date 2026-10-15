@@ -1023,6 +1023,14 @@ const key = getEnvApiKey('openai');  // checks OPENAI_API_KEY
 
 ## OAuth Providers
 
+Google Gemini CLI and Antigravity OAuth require an application configured by the distributor or user. This repository does not bundle upstream OAuth client credentials. Set the matching environment variables before login or token refresh:
+
+- `GOOGLE_GEMINI_CLI_CLIENT_ID` and `GOOGLE_GEMINI_CLI_CLIENT_SECRET`
+- `GOOGLE_ANTIGRAVITY_CLIENT_ID` and `GOOGLE_ANTIGRAVITY_CLIENT_SECRET`
+
+Missing configuration fails before opening an authorization flow or sending a token request. Keep values outside source control. These credentials configure the optional model provider; they do not implement the 567 Agent software account service.
+
+
 Several providers require OAuth authentication instead of static API keys:
 
 - **Anthropic** (Claude Pro/Max subscription)

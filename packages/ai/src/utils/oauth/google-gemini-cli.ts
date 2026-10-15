@@ -7,6 +7,7 @@
  */
 
 import type { createServer, Server } from "node:http";
+import { getGoogleOAuthClient } from "./google-oauth-client.js";
 import { generatePKCE } from "./pkce.js";
 import type { OAuthCredentials, OAuthLoginCallbacks, OAuthProviderInterface } from "./types.js";
 
@@ -22,8 +23,6 @@ if (typeof process !== "undefined" && (process.versions?.node || process.version
 	});
 }
 
-const CLIENT_ID = process.env.GOOGLE_GEMINI_CLI_CLIENT_ID ?? "";
-const CLIENT_SECRET = process.env.GOOGLE_GEMINI_CLI_CLIENT_SECRET ?? "";
 const REDIRECT_URI = "http://localhost:8085/oauth2callback";
 const SCOPES = [
 	"https://www.googleapis.com/auth/cloud-platform",
@@ -375,12 +374,13 @@ async function getUserEmail(accessToken: string): Promise<string | undefined> {
  * Refresh Google Cloud Code Assist token
  */
 export async function refreshGoogleCloudToken(refreshToken: string, projectId: string): Promise<OAuthCredentials> {
+	const client = getGoogleOAuthClient("GEMINI_CLI");
 	const response = await fetch(TOKEN_URL, {
 		method: "POST",
 		headers: { "Content-Type": "application/x-www-form-urlencoded" },
 		body: new URLSearchParams({
-			client_id: CLIENT_ID,
-			client_secret: CLIENT_SECRET,
+			client_id: client.clientId,
+			client_secret: client.clientSecret,
 			refresh_token: refreshToken,
 			grant_type: "refresh_token",
 		}),
@@ -418,6 +418,7 @@ export async function loginGeminiCli(
 	onProgress?: (message: string) => void,
 	onManualCodeInput?: () => Promise<string>,
 ): Promise<OAuthCredentials> {
+	const client = getGoogleOAuthClient("GEMINI_CLI");
 	const { verifier, challenge } = await generatePKCE();
 
 	// Start local server for callback
@@ -429,7 +430,7 @@ export async function loginGeminiCli(
 	try {
 		// Build authorization URL
 		const authParams = new URLSearchParams({
-			client_id: CLIENT_ID,
+			client_id: client.clientId,
 			response_type: "code",
 			redirect_uri: REDIRECT_URI,
 			scope: SCOPES.join(" "),
@@ -524,8 +525,8 @@ export async function loginGeminiCli(
 				"Content-Type": "application/x-www-form-urlencoded",
 			},
 			body: new URLSearchParams({
-				client_id: CLIENT_ID,
-				client_secret: CLIENT_SECRET,
+				client_id: client.clientId,
+				client_secret: client.clientSecret,
 				code,
 				grant_type: "authorization_code",
 				redirect_uri: REDIRECT_URI,
