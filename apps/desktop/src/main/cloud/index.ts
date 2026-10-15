@@ -13,8 +13,8 @@ import { setCloudBridge } from "../cloud-bridge.js";
 import { fetchRemoteProviders, registerCloudAuthIpc, tryRefreshAccessToken } from "./auth-session.js";
 import { requestVettaGateway } from "./gateway.js";
 
-export function startCloudMain(): void {
-	registerCloudAuthIpc();
+export function startCloudMain(): () => void {
+	const stopAuth = registerCloudAuthIpc();
 
 	// 宿主功能（模型探测回退 / 网关能力 / 市场安装鉴权）经 bridge 使用云服务，
 	// 不直接 import cloud 内部实现。
@@ -23,4 +23,8 @@ export function startCloudMain(): void {
 		requestGateway: requestVettaGateway,
 		tryRefreshAccessToken,
 	});
+	return () => {
+		setCloudBridge(null);
+		stopAuth();
+	};
 }

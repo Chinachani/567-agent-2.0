@@ -118,7 +118,9 @@
 		"prepare": "husky",
 		"build:npm-compat": "node scripts/generate-npm-compat.mjs",
 		"check:types:npm-compat": "bun run --cwd packages/npm-compat check",
-		"test:npm-compat": "turbo run build --filter=@567agent/capability-sdk --filter=@567agent/plugin-sdk --filter=@567agent/plugin-vite --filter=@567agent/plugin-cli --filter=@567agent/theme-sdk --filter=@567agent/theme-ui --filter=@567agent/ui && bun scripts/quality/run-vitest.mjs --run scripts/quality/npm-compat.test.mjs"
+		"test:npm-compat": "turbo run build --filter=@567agent/capability-sdk --filter=@567agent/plugin-sdk --filter=@567agent/plugin-vite --filter=@567agent/plugin-cli --filter=@567agent/theme-sdk --filter=@567agent/theme-ui --filter=@567agent/ui && bun scripts/quality/run-vitest.mjs --run scripts/quality/npm-compat.test.mjs",
+		"dev:v2": "node scripts/run-v2-development.mjs desktop",
+		"dev:v2:config": "node scripts/run-v2-development.mjs --print-config"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.3.5",

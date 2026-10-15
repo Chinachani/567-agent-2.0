@@ -317,7 +317,7 @@ function prepareProfile(layout, sync = false) {
 	mkdirSync(layout.artifactDir, { recursive: true });
 	if (layout.profile !== "debug") return null;
 	return seedDebugProfile({
-		sourceHome: join(homedir(), ".567agent-dev"),
+		sourceHome: join(homedir(), ".567agent-v2-dev"),
 		targetHome: layout.agent567Home,
 		workspacePath: repoRoot,
 		sync,

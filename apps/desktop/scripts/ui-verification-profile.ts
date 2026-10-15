@@ -91,17 +91,17 @@ export function resolveProfileLayout(
 ): UiVerificationProfileLayout {
   const homeDirectory = resolve(options.homeDirectory ?? homedir());
   const runtimeRoot = resolve(
-    options.runtimeRoot ?? join(tmpdir(), "vetta-ui-verification", options.workspaceId),
+    options.runtimeRoot ?? join(tmpdir(), "567agent-v2-ui-verification", options.workspaceId),
   );
   const profileRuntimeDir = join(runtimeRoot, options.profile);
 
   if (options.profile === "dev") {
-    const agent567Home = join(homeDirectory, ".567agent-dev");
+    const agent567Home = join(homeDirectory, ".567agent-v2-dev");
     return {
       profile: options.profile,
       workspaceId: options.workspaceId,
-      sessionName: `567agent-dev-${options.workspaceId}`,
-      configDir: ".567agent-dev",
+      sessionName: `567agent-v2-dev-${options.workspaceId}`,
+      configDir: ".567agent-v2-dev",
       agent567Home,
       userDataDir: join(agent567Home, "electron-user-data"),
       endpointFile: join(agent567Home, "action-server.json"),
@@ -116,18 +116,18 @@ export function resolveProfileLayout(
   const runId = options.profile === "fresh" ? options.runId ?? randomUUID() : null;
   const agent567Home =
     options.profile === "fresh"
-      ? join(profileRuntimeDir, "runs", runId as string, "home")
-      : join(homeDirectory, ".567agent-ui-debug", options.workspaceId);
-  const configDir = `.567agent-ui-${options.profile}-${options.workspaceId}`;
+      ? join(homeDirectory, ".567agent-v2-dev", "ui-fresh", options.workspaceId, runId as string, "home")
+      : join(homeDirectory, ".567agent-v2-dev", "ui-debug", options.workspaceId);
+  const configDir = `.567agent-v2-ui-${options.profile}-${options.workspaceId}`;
 
   return {
     profile: options.profile,
     workspaceId: options.workspaceId,
-    sessionName: `vetta-${options.profile}-${options.workspaceId}`,
+    sessionName: `567agent-v2-${options.profile}-${options.workspaceId}`,
     configDir,
     agent567Home,
     userDataDir: join(agent567Home, "electron-user-data"),
-    endpointFile: join(profileRuntimeDir, "action-server.json"),
+    endpointFile: join(agent567Home, "action-server.json"),
     runtimeDir: profileRuntimeDir,
     statePath: join(profileRuntimeDir, "host.json"),
     artifactDir: join(runtimeRoot, "artifacts", options.profile),

@@ -1,6 +1,30 @@
-# 567 Agent
+# 567 Agent 2.0
 
-567 Agent 是围绕 567 API 服务打造的 AI Agent 客户端项目，包含桌面应用、Android 客户端、命令行宿主和 IM 网关。桌面端把对话、项目文件和 Agent 工具放在本机工作区中；Android 可独立发起对话，也可连接桌面端继续会话或远程操作桌面。
+这是 567 Agent 2.0 的客户端开发仓库，基于 1.x 的 **v1.2.13 / ed86395fb** 建立，保留已有提交历史。1.x 继续在 [567-agent](https://github.com/Chinachani/567-agent) 独立维护。
+
+2.0 的官方模型通道计划使用 LiteLLM，账号、订阅与按量账本由独立业务服务负责；用户自定义 API（包括独立运营的 NewAPI）由用户自行配置与结算。当前处于开发初期，官方业务接入与旧配置迁移尚未完成，没有发布可供日常替换 1.x 的 2.0 正式版。
+
+## 当前进度
+
+已同步 1.2.13 的手机上下文管理、断网任务恢复、命令资源保护、运行时修复及 Markdown 改进。首批改造包括独立开发数据目录、Android 包身份、更新源隔离，以及 cloud IPC 在页面加载前注册和退出清理。完整状态见[实施进度](docs/desktop/litellm-2.0-progress.md)。
+
+开发环境默认将 Home、Agent 配置、Electron userData、Action RPC 和 Windows 更新缓存放在 `~/.567agent-v2-dev` 下，拒绝复用 1.x 目录和越界路径。项目内配置目录使用 `.567agent-v2-*`；请使用隔离项目副本进行开发，不在真实项目上验证可写迁移。
+
+```bash
+bun install --frozen-lockfile
+bun run dev:v2:config  # 只显示目录与端口，不启动应用
+bun run dev:v2         # 用户需要时启动桌面开发环境，默认端口 3022
+```
+
+当前预览构建（包括本地打包预览）强制采用 2.0 开发数据目录；生产数据迁移入口完成前不提供复用正式数据的启动方式。开发启动器暂时关闭官方云功能；新业务地址合同落地后再启用。
+
+Android 测试包为 `com.api567.agent.v2.test`，不覆盖 `com.api567.agent` 或 `.test`。见[手机开发说明](apps/mobile/README.md)。
+
+方案文档：[开工计划](docs/desktop/litellm-2.0-preflight.md)、[工程计划](docs/desktop/litellm-2.0-engineering-plan.md)、[接口草案](docs/desktop/litellm-2.0-contract-draft.md)。
+
+## 1.x 历史功能参考
+
+以下保留原客户端的功能和开发说明，仅用于核对继承能力；账号与官方服务语义将随 2.0 改造更新。
 
 ## v1.2.12 主要更新
 
@@ -51,7 +75,7 @@ cd apps/desktop
 bun run dev
 ```
 
-桌面开发环境默认使用独立的 `~/.567agent-dev` 配置目录。仓库根目录的 `bun run dev` 只启动部分核心包的开发监听，不会启动 Electron 桌面应用。
+本仓库桌面开发环境使用独立的 `~/.567agent-v2-dev` 配置目录。仓库根目录的 `bun run dev` 只启动部分核心包的开发监听，不会启动 Electron 桌面应用。
 
 Android 开发和 APK 签名配置见 [`apps/mobile/README.md`](apps/mobile/README.md)；完整开发入口见[快速开始](QUICKSTART.zh-CN.md)。
 

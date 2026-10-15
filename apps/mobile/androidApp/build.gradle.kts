@@ -88,7 +88,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.api567.agent"
+        applicationId = "com.api567.agent.v2"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = mobileVersionCode

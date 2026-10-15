@@ -1205,7 +1205,7 @@ internal class Agent567Api(
 
     suspend fun checkAppUpdate(): AppUpdateCheckResult {
         return try {
-            val url = "https://api.github.com/repos/Chinachani/567-agent/releases/latest"
+            val url = "https://api.github.com/repos/Chinachani/567-agent-2.0/releases/latest"
             val response = bareClient.get(url) {
                 header(HttpHeaders.UserAgent, "567-Agent-Mobile")
             }

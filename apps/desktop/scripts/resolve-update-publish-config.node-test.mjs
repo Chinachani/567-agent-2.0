@@ -6,7 +6,7 @@ test("defaults packaged builds to the 567 Agent GitHub Releases feed", () => {
 	assert.deepEqual(resolveUpdatePublishConfig({}), {
 		provider: "github",
 		owner: "Chinachani",
-		repo: "567-agent",
+		repo: "567-agent-2.0",
 		releaseType: "release",
 	});
 });

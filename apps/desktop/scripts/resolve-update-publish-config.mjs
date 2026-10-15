@@ -1,7 +1,7 @@
 const SUPPORTED_PROVIDERS = new Set(["generic", "github"]);
 const DEFAULT_UPDATE_PROVIDER = "github";
 const DEFAULT_UPDATE_GITHUB_OWNER = "Chinachani";
-const DEFAULT_UPDATE_GITHUB_REPO = "567-agent";
+const DEFAULT_UPDATE_GITHUB_REPO = "567-agent-2.0";
 
 function normalizeHttpUrl(rawUrl) {
 	const url = new URL(rawUrl);

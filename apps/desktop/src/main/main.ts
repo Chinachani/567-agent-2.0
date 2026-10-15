@@ -1,3 +1,4 @@
+import "./development-data-bootstrap.js";
 import "./telemetry/bootstrap.js";
 import { mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -10,7 +11,6 @@ import {
 	findDesignSharePath,
 	isDesignSharePath,
 } from "../shared/app-lifecycle-ipc.js";
-import { isCloudBuildEnabled } from "../shared/feature-flags.js";
 import { stopAllOpenMarketplaceMcpRuntimes } from "./abilities/open-marketplace/open-marketplace-mcp-runtime-host.js";
 import { ActionApprovalBroker } from "./app-actions/approval-broker.js";
 import { createAppActionSystem } from "./app-actions/index.js";
@@ -30,7 +30,8 @@ import { parseAgentRpcCommand, runAgentRpcCommand } from "./cli/agent-rpc-comman
 import { parseHelpCliCommand, runHelpCliCommand } from "./cli/help-command.js";
 import { parseOcrCliCommand, runOcrCliCommand } from "./cli/ocr-command.js";
 import { parsePdfCliCommand, runPdfCliCommand } from "./cli/pdf-command.js";
-import { ensureAgent567CommandShim, ensureDevAgent567CliShim, ensureDevCliShim } from "./dev-cli-shim.js";
+import { startCloudServices } from "./cloud-lifecycle.js";
+import { ensureDevAgent567CliShim, ensureDevCliShim } from "./dev-cli-shim.js";
 import {
 	getDiagnosticsLogPath,
 	installChromiumFetchForMain,
@@ -264,6 +265,7 @@ if (!isCliMode && process.platform === "linux" && shouldUseLinuxSoftwareRenderin
 }
 
 let ipcTeardown: IpcTeardown | undefined;
+let teardownCloudServices: (() => void) | undefined;
 let teardownSchedulerIpc: (() => void) | undefined;
 let teardownBatchTasksIpc: (() => void) | undefined;
 let localRpcServer: DesktopLocalRpcServerHandle | undefined;
@@ -449,6 +451,7 @@ if (!gotSingleLock) {
 		registerMediaProtocolHandler();
 		// 静态文件协议 handler（ADR-0027）
 		registerFileProtocolHandler();
+		teardownCloudServices = await startCloudServices();
 
 		// 开发模式每次启动先清空 HTTP 缓存。插件资源的 remoteEntry.js 文件名固定，
 		// Chromium 可能跨重启复用旧 chunk；但 clearCache() 会中断已经开始的网络请求，
@@ -645,21 +648,6 @@ if (!gotSingleLock) {
 			await openExternalUrl(url);
 		});
 
-		// 567 Agent API 云端能力（订阅 / 远程模型）：构建期开关。lite 构建下该分支
-		// 被常量折叠，整个 cloud chunk 不进产物。
-		if (isCloudBuildEnabled()) {
-			const { startCloudMain } = await import("./cloud/index.js");
-			startCloudMain();
-		} else {
-			ipcMain.handle("vetta:models:fetch-remote", async () => ({ providers: {} }));
-			ipcMain.handle("vetta:subscription:status", async () => ({ isPro: false }));
-			ipcMain.handle("vetta:auth:refresh-token", async () => false);
-			ipcMain.handle("vetta:settings:get-server-token", () => undefined);
-			ipcMain.handle("vetta:settings:set-server-token", () => {});
-			ipcMain.handle("vetta:settings:get-server-refresh-token", () => undefined);
-			ipcMain.handle("vetta:settings:set-server-refresh-token", () => {});
-		}
-
 		if (process.platform === "darwin") {
 			app.dock.setIcon(nativeImage.createFromPath(join(buildDir, "icon-dock.png")));
 		}
@@ -726,7 +714,6 @@ if (!gotSingleLock) {
 				}
 				process.env.AGENT567_DESKTOP_EXE = agent567AppPath;
 				process.env.AGENT567_CLI_APP_PATH = agent567CliPath;
-				await ensureAgent567CommandShim(agent567CliPath);
 				await persistAgent567CliPaths({ agent567AppPath, agent567CliAppPath: agent567CliPath });
 			} catch (err) {
 				mainLog.error("failed to install 567 Agent CLI paths", err);
@@ -932,6 +919,8 @@ function desktopSignalingTarget(controlUrl: string | undefined): string | undefi
 // 之前先调用它——原因见该模块的注释。
 setQuitCleanup(async () => {
 	mainLog.info("quit cleanup started");
+	teardownCloudServices?.();
+	teardownCloudServices = undefined;
 	// Release managed Node processes before awaiting remote shutdown; a slow
 	// connection must not leave them holding the runtime through a repair restart.
 	stopAllPluginDevWatches();

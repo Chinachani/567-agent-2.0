@@ -42,7 +42,7 @@ describe("UI verification profiles", () => {
     const environment = createProfileEnvironment(layout, { AGENT567_UI_VERIFICATION: "stale" });
 
     expect(layout.statePath).toBeNull();
-    expect(layout.agent567Home).toBe(join(root, ".567agent-dev"));
+    expect(layout.agent567Home).toBe(join(root, ".567agent-v2-dev"));
     expect(environment.AGENT567_UI_VERIFICATION).toBeUndefined();
   });
 });

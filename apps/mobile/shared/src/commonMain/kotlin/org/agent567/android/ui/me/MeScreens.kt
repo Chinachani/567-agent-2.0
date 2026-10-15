@@ -1077,7 +1077,7 @@ fun AboutScreen(
                 androidx.compose.material3.FilledTonalButton(
                     onClick = {
                         val targetUrl = update.apkUrl?.takeIf(String::isNotBlank)
-                            ?: "https://github.com/Chinachani/567-agent/releases/latest"
+                            ?: "https://github.com/Chinachani/567-agent-2.0/releases/latest"
                         try {
                             uriHandler.openUri(targetUrl)
                             updateResult = null
